@@ -29,6 +29,9 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.springframework.http.HttpMethod;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 public class HttpClientUtil {
 	private static final String ENCODING = "UTF-8";
 	private static final int CONNECT_TIMEOUT = 6000;
@@ -172,11 +175,13 @@ public class HttpClientUtil {
 		httpResponse = httpClient.execute(httpMethod);
 		if (httpResponse != null && httpResponse.getStatusLine() != null) {
 			String content = "";
+			JsonObject jsonParser = null;
 			if (httpResponse.getEntity() != null) {
 				content = EntityUtils.toString(httpResponse.getEntity(), ENCODING);
+				jsonParser = JsonParser.parseString(content).getAsJsonObject();
 			}
 
-			return new HttpClientResultUtil(httpResponse.getStatusLine().getStatusCode(), "请求成功", content);
+			return new HttpClientResultUtil(httpResponse.getStatusLine().getStatusCode(), "请求成功", jsonParser);
 		}
 		return new HttpClientResultUtil(httpResponse.getStatusLine().getStatusCode(), "请求失败 ",
 				HttpStatus.SC_INTERNAL_SERVER_ERROR);
